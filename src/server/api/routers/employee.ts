@@ -4,10 +4,6 @@ import {
   publicProcedure,
 } from '~/server/api/trpc';
 
-function pause(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 export const employeeRouter = createTRPCRouter({
   create: publicProcedure
     .input(
@@ -37,8 +33,6 @@ export const employeeRouter = createTRPCRouter({
 
       await Promise.all(
         sortedEmployees.map(async (employee, index) => {
-          await pause(100);
-
           return ctx.prisma.employee.update({
             where: {
               id: employee.id,
@@ -102,4 +96,44 @@ export const employeeRouter = createTRPCRouter({
       employees: nextEmployees,
     };
   }),
+  delete: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.employee.delete({
+        where: {
+          id: input.id,
+        },
+      });
+
+      const employees = await ctx.prisma.employee.findMany();
+
+      const sortedEmployees = employees.sort(function (a, b) {
+        if (a.name < b.name) {
+          return -1;
+        }
+        if (a.name > b.name) {
+          return 1;
+        }
+        return 0;
+      });
+
+      await Promise.all(
+        sortedEmployees.map(async (employee, index) => {
+          return ctx.prisma.employee.update({
+            where: {
+              id: employee.id,
+            },
+            data: {
+              position: index,
+            },
+          });
+        })
+      );
+
+      return;
+    }),
 });

@@ -7,9 +7,9 @@ const inter = Inter({ subsets: ['latin'] });
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
-    <main className={`${inter.className} antialiased`}>
+    <div className={`${inter.className} antialiased`}>
       <Component {...pageProps} />
-    </main>
+    </div>
   );
 };
 

@@ -3,6 +3,10 @@ import {
   publicProcedure,
 } from '~/server/api/trpc';
 
+function pause(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export const dailyRouter = createTRPCRouter({
   getCurrent: publicProcedure.query(async ({ ctx }) => {
     const daily = await ctx.prisma.daily.findFirst();
@@ -34,6 +38,8 @@ export const dailyRouter = createTRPCRouter({
         position: currentPosition,
       },
     });
+
+    await pause(3000);
 
     return {
       employee: { ...currentEmployee },
